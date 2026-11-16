@@ -1103,7 +1103,14 @@
   "VendorTag": "com.oplus.feature.front.720p.slow.video.support",
   "Type": "Byte",
   "Count": "1",
-  "Value": "0"
+  "Value": "1"
+},
+
+{
+  "VendorTag": "com.oplus.feature.front.1080p.slow.video.support",
+  "Type": "Byte",
+  "Count": "1",
+  "Value": "1"
 },
 
 {
