@@ -8,6 +8,13 @@
 },
 
 {
+  "VendorTag": "com.oplus.use.hasselblad.style.support",
+  "Type": "Byte",
+  "Count": "1",
+  "Value": "1"
+},
+
+{
   "VendorTag": "com.oplus.feature.auto.night.scence.support",
   "Type": "Byte",
   "Count": "1",
