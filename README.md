@@ -26,6 +26,8 @@ manifest (`vendor/aospa/products/platforms/kona.xml`).
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
+  <remote name="provasish-gitlab" fetch="https://gitlab.com/provasishh" />
+
   <!-- kona platform -->
   <project path="vendor/qcom/opensource/audio-hal/primary-hal" name="AOSPA/android_hardware_qcom_audio" remote="aospa" revision="vauxite-865" />
   <project path="hardware/qcom/display" name="AOSPA/android_hardware_qcom_display" remote="aospa" revision="vauxite-865" />
@@ -39,13 +41,10 @@ manifest (`vendor/aospa/products/platforms/kona.xml`).
   <project path="device/realme/sm8250-common" name="provasish/android_device_realme_sm8250-common" remote="github" revision="clo" />
   <project path="hardware/oplus" name="provasish/android_hardware_oplus" remote="github" revision="clo" />
   <project path="kernel/msm-4.19" name="provasish/android_kernel_realme_sm8250-a17" remote="github" revision="clo" />
-  <project path="vendor/realme/spartan" name="provasish/proprietary_vendor_realme_spartan" remote="github" revision="clo" clone-depth="1" />
-  <project path="vendor/realme/sm8250-common" name="provasish/proprietary_vendor_realme_sm8250-common" remote="github" revision="clo" clone-depth="1" />
+  <project path="vendor/realme/spartan" name="proprietary_vendor_realme_spartan" remote="provasish-gitlab" revision="clo" clone-depth="1" />
+  <project path="vendor/realme/sm8250-common" name="proprietary_vendor_realme_sm8250-common" remote="provasish-gitlab" revision="clo" clone-depth="1" />
 </manifest>
 ```
-
-`hardware/oplus`, `kernel/msm-4.19` and the two `vendor/realme` repos need a
-`clo` branch of their own. See the notes below.
 
 Then:
 
@@ -57,17 +56,11 @@ lunch aospa_spartan-userdebug
 
 ## Notes
 
-- `hardware/oplus` must not depend on LineageOS-only modules. The LineageOS
-  branch builds `vendor.lineage.touch-service.oplus`,
-  `vendor.lineage.livedisplay-service.oplus`,
-  `vendor.lineage.powershare-service.oplus` and several apps against
-  `org.lineageos.settings.resources`. Those need to be removed or ported, and
-  `sepolicy/qti/SEPolicy.mk` includes `device/lineage/sepolicy/libperfmgr`.
-- AOSPA's kernel build (`AndroidKernel.mk`) takes a single `KERNEL_DEFCONFIG`.
-  The kernel needs `AndroidKernel.mk`, `Android.bp` and one defconfig that
-  merges `vendor/kona-perf_defconfig` and `vendor/oplus.config`.
-- `proprietary-files.txt` changed, so the blobs have to be extracted again:
-
-```bash
-cd device/realme/spartan && ./extract-files.py /path/to/stock/dump
-```
+- `hardware/oplus` (`clo`) drops the LineageOS-only touch, LiveDisplay and
+  PowerShare HALs and the apps that use `org.lineageos.settings.resources`.
+- The kernel (`clo`) has `AndroidKernel.mk`, `Android.bp` and
+  `vendor/kona-perf-oplus_defconfig`, which is `kona-perf_defconfig` merged
+  with `oplus.config`. Regenerate it if either source file changes.
+- `proprietary_vendor_realme_sm8250-common` (`clo`) was regenerated from the
+  new `proprietary-files.txt` with `extract-files.py --regenerate_makefiles`.
+  The spartan blobs are unchanged.
