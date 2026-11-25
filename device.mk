@@ -30,6 +30,12 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/camera/config/oplus_camera_aps_config:$(TARGET_COPY_OUT_ODM)/etc/camera/config/oplus_camera_aps_config \
     $(LOCAL_PATH)/camera/config/oplus_camera_config:$(TARGET_COPY_OUT_ODM)/etc/camera/config/oplus_camera_config
 
+# Kernel
+# A17's VINTF kernel requirement map starts at 5.4.302 and has no 4.19 entry,
+# so OTA packaging cannot pass the check while this device stays on its kona
+# 4.19 kernel. Disables the release-tools check only; the kernel is unchanged.
+PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false
+
 # Overlays
 PRODUCT_PACKAGES += \
     ApertureOverlaySpartan \
