@@ -19,22 +19,34 @@ What changes compared to the LineageOS branch:
 
 ## Building
 
-Sync an AOSPA `calcite` tree, then add the following to
-`.repo/local_manifests/spartan.xml`. The first block is AOSPA's kona platform
-manifest (`vendor/aospa/products/platforms/kona.xml`).
+Sync an AOSPA `calcite` (Android 17) tree, then add the following to
+`.repo/local_manifests/spartan.xml`.
+
+Do **not** copy the first block from AOSPA's
+`vendor/aospa/products/platforms/kona.xml`. That file is stale on `calcite`:
+it still pins the 865 HALs to the `vauxite-*` branches, which are the
+Android 15/16 generation (tips from 2023-2024), and AOSPA never cut
+`calcite-865` branches for audio, display or media - upstream only has
+`calcite-888`, `calcite-8450` and `calcite-8650`. With the `vauxite-865`
+display HAL the build flashes and then hangs at the splash screen, because
+`libgrallocutils` hard-crashes during buffer allocation (see Notes). The
+block below therefore uses [pa-sanji](https://github.com/pa-sanji)'s
+`calcite` forks for audio, display and media - the same branches that
+sm8250 a17 builds are on - and AOSPA's own `calcite-legacy*` branches for
+the two components that do exist upstream.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
   <remote name="provasish-gitlab" fetch="https://gitlab.com/provasishh" />
 
-  <!-- kona platform -->
-  <project path="vendor/qcom/opensource/audio-hal/primary-hal" name="AOSPA/android_hardware_qcom_audio" remote="aospa" revision="vauxite-865" />
-  <project path="hardware/qcom/display" name="AOSPA/android_hardware_qcom_display" remote="aospa" revision="vauxite-865" />
-  <project path="hardware/qcom/gps" name="AOSPA/android_hardware_qcom_gps" remote="aospa" revision="vauxite-legacy-component" />
-  <project path="hardware/qcom/media" name="AOSPA/android_hardware_qcom_media" remote="aospa" revision="vauxite-865" />
+  <!-- kona platform, calcite / Android 17 -->
+  <project path="vendor/qcom/opensource/audio-hal/primary-hal" name="pa-sanji/android_hardware_qcom_audio" remote="github" revision="calcite" />
+  <project path="hardware/qcom/display" name="pa-sanji/android_hardware_qcom_display" remote="github" revision="calcite" />
+  <project path="hardware/qcom/gps" name="AOSPA/android_hardware_qcom_gps" remote="aospa" revision="calcite-legacy-component" />
+  <project path="hardware/qcom/media" name="pa-sanji/android_hardware_qcom_media" remote="github" revision="calcite" />
   <remove-project name="AOSPA/android_hardware_qcom_thermal" />
-  <project path="vendor/qcom/opensource/thermal-hal" name="AOSPA/android_hardware_qcom_thermal" remote="aospa" revision="vauxite-legacy" />
+  <project path="vendor/qcom/opensource/thermal-hal" name="AOSPA/android_hardware_qcom_thermal" remote="aospa" revision="calcite-legacy" />
 
   <!-- spartan -->
   <project path="device/realme/spartan" name="provasish/android_device_realme_spartan" remote="github" revision="clo" />
@@ -56,6 +68,17 @@ lunch aospa_spartan-userdebug
 
 ## Notes
 
+- The `vauxite-865` display HAL is the wrong generation for `calcite`, but
+  the 42-character `vendor.gralloc.secure_preview_buffer_format` is not the
+  crash: kona never sets it (`display-product.mk` only sets it for
+  bengal/monaco/khaje) and an over-long name in `property_get()` falls back to
+  the default rather than aborting. The fork still carries the generational
+  fixes that matter: `android::base::GetProperty`, `display: Type the gralloc
+  soong config variables as bool` (the a17 soong only honours
+  `bool_variables` set through `soong_config_set_bool`), the media fork's
+  kona codec-list fixes (`media: kona: Declare the vendor OMX AAC encoder`)
+  and the audio fork's `kona: Skip the source primary HAL when using the stock
+  HAL`.
 - `hardware/oplus` (`clo`) drops the LineageOS-only touch, LiveDisplay and
   PowerShare HALs and the apps that use `org.lineageos.settings.resources`.
 - The kernel (`clo`) has `AndroidKernel.mk`, `Android.bp` and
@@ -64,3 +87,23 @@ lunch aospa_spartan-userdebug
 - `proprietary_vendor_realme_sm8250-common` (`clo`) was regenerated from the
   new `proprietary-files.txt` with `extract-files.py --regenerate_makefiles`.
   The spartan blobs are unchanged.
+- `calcite` cannot package an OTA with the 4.19 kona kernel: the a17 VINTF
+  kernel requirement map starts at 5.4.302 and has no 4.19 entry, so
+  `check_target_files_vintf.py` fails during `Package OTA`.
+  `PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false` in `device.mk`
+  disables that check only; the kernel itself is untouched.
+- The OPLUS ODM manifest declares AIDL `android.hardware.biometrics.face` at
+  version 1, which the a17 matrix rejects ("is deprecated; requires at least
+  2"), so `manifest_oplus_face.xml` is no longer installed by
+  `sm8250-common-vendor.mk`. The framework matrix lists that interface as
+  `optional="true"`, so nothing else depends on it.
+- `gps@calcite-legacy-component` and `thermal@calcite-legacy` are byte-for-byte
+  the same tips as their `vauxite-*` counterparts, so those two were never the
+  reason the a17 build would not boot - only audio, display and media actually
+  changed between the generations.
+- Cross-reference for a known-good sm8250-on-calcite tree:
+  `pa-sanji/.github` (`calcite`), `manifests/alioth.xml`, which overrides the
+  same five kona HAL paths and additionally swaps `vendor/qcom/opensource/usb`,
+  `vendor/qcom/opensource/power`, `device/qcom/sepolicy`,
+  `device/qcom/sepolicy_vndr`, `kernel/configs` and `system/libhwbinder` to
+  `calcite` branches. Worth a look if boot still stalls after the HAL change.
