@@ -48,6 +48,10 @@ the two components that do exist upstream.
   <remove-project name="AOSPA/android_hardware_qcom_thermal" />
   <project path="vendor/qcom/opensource/thermal-hal" name="AOSPA/android_hardware_qcom_thermal" remote="aospa" revision="calcite-legacy" />
 
+  <!-- AOSPA calcite has no kona vendor sepolicy; without it the ROM hangs at the splash screen -->
+  <remove-project name="AOSPA/android_device_qcom_sepolicy_vndr" />
+  <project path="device/qcom/sepolicy_vndr" name="pa-sanji/android_device_qcom_sepolicy_vndr" remote="github" revision="calcite" />
+
   <!-- spartan -->
   <project path="device/realme/spartan" name="provasish/android_device_realme_spartan" remote="github" revision="clo" />
   <project path="device/realme/sm8250-common" name="provasish/android_device_realme_sm8250-common" remote="github" revision="clo" />
@@ -68,6 +72,11 @@ lunch aospa_spartan-userdebug
 
 ## Notes
 
+- AOSPA `calcite`'s `device/qcom/sepolicy_vndr` no longer carries
+  `generic/vendor/kona` or `qva/vendor/kona`, while its `SEPolicy.mk` still adds
+  both. The build succeeds, but none of the kona labels (including the UFS
+  `by-name` partitions such as `userdata` and `metadata`) end up in the vendor
+  policy. `pa-sanji`'s `calcite` branch restores them.
 - The `vauxite-865` display HAL is the wrong generation for `calcite`, but
   the 42-character `vendor.gralloc.secure_preview_buffer_format` is not the
   crash: kona never sets it (`display-product.mk` only sets it for
