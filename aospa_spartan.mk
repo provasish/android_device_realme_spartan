@@ -25,17 +25,22 @@ TARGET_HAS_UDFPS := true
 # PenguinOS: window blur. Off by default on kona; set to true to try it.
 TARGET_USES_BLUR ?= false
 
-# PenguinOS: vendor/aospa still carries an April import of the ax SDK, the
-# HarmonySans font and the iconpack overlays, which vendor/udfps-resources
-# (android_vendor_addons) now provides in newer form under the same module
-# names, so Soong fails with "module ... already defined". Skip the stale
-# vendor/aospa copies while the addons ones exist.
+# PenguinOS: vendor/aospa and vendor/udfps-resources (android_vendor_addons)
+# both define the ax SDK, the HarmonySans font, the iconpack overlays and the
+# ax prebuilts under the same module names, so Soong fails with "module ...
+# already defined". Keep one copy of each:
+# - ax SDK: vendor/aospa's. The two have diverged, and PenguinSystemUI uses
+#   AxBlurColors.surfaceLightTint, which only vendor/aospa's ax_blur has.
+#   frameworks/base SystemUI and GameSpace only use repeatWhenAttached and
+#   the platform hooks, which are the same in both.
+# - prebuilts, font and iconpacks: the addons ones. vendor/aospa's ax SDK
+#   does not depend on its misc/prebuilts.
 ifneq ($(wildcard vendor/udfps-resources/sdk/ax_compose/Android.bp),)
 PRODUCT_SOURCE_ROOT_DIRS += \
-    -vendor/aospa/misc/ax_blur \
-    -vendor/aospa/misc/ax_compose \
-    -vendor/aospa/misc/ax_kt \
-    -vendor/aospa/misc/ax_platform_hooks \
+    -vendor/udfps-resources/sdk/ax_blur \
+    -vendor/udfps-resources/sdk/ax_compose \
+    -vendor/udfps-resources/sdk/ax_kt \
+    -vendor/udfps-resources/sdk/ax_platform_hooks \
     -vendor/aospa/misc/prebuilts \
     -vendor/aospa/overlay/FontHarmonySansOverlay \
     $(foreach p,Circular Filled Kai Rounded Sam Victor, \
