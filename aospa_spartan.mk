@@ -43,6 +43,14 @@ PRODUCT_SOURCE_ROOT_DIRS += \
             -vendor/aospa/overlay/IconPack$(p)$(t)Overlay))
 endif
 
+# vendor/udfps-resources also defines the SystemUIClocks-* apps and
+# PixelSetupWizardOverlayExpressive, which vendor/google/pixel (an exported
+# Soong namespace) provides and installs, so Kati fails with "already
+# defined". Only the pixel makefiles install them, so skip the addons copies.
+PRODUCT_SOURCE_ROOT_DIRS += \
+    -vendor/udfps-resources/rro_overlays/PixelSetupWizardOverlayExpressive \
+    -vendor/udfps-resources/themes/SystemUIClocks
+
 # PenguinOS: vendor/udfps-resources/prebuilt/bootanimation (from crDroid)
 # selects on these, and Soong analyzes it even though it is not installed.
 $(call soong_config_set,lineage_bootanimation,width,1080)
