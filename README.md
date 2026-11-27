@@ -75,6 +75,41 @@ source build/envsetup.sh
 lunch aospa_spartan-userdebug
 ```
 
+## Building PenguinOS
+
+[PenguinOS](https://github.com/Project-PenguinOS) `celerity` is built on AOSPA
+`calcite`, so this branch builds it unchanged. Only the local manifest differs,
+because Penguin replaces several AOSPA projects with its own forks:
+
+- `device/qcom/sepolicy_vndr`, `vendor/qcom/opensource/thermal-hal` and
+  `vendor/qcom/common` are `Project-PenguinOS/*` projects there. The AOSPA
+  manifest's name-based `remove-project` lines fail, so the Penguin manifest
+  removes them by path.
+- Penguin's `sepolicy_vndr` has no kona policy either, so the `pa-sanji`
+  fork is still needed.
+- Penguin's `vendor/qcom/common` is AOSPA's plus the perf HIDL 2.x
+  `system_ext` libraries and 5.10 media decoders. Neither is used on kona, so
+  the `spartan-lineage-adreno` fork replaces it.
+- Penguin's `device/qcom/common`, `vendor/qcom/opensource/power` and
+  `vendor/qcom/opensource/usb` still support kona and 4.19, so they are kept.
+- Penguin's `hardware_oplus` targets newer OPLUS devices. It is not in the
+  base manifest, so this tree's `hardware/oplus` (`clo`) is used as is.
+
+```bash
+repo init -u https://github.com/Project-PenguinOS/manifest -b celerity --git-lfs
+mkdir -p .repo/local_manifests
+curl -fsSL https://raw.githubusercontent.com/provasish/android_device_realme_spartan/clo/penguin.xml \
+    -o .repo/local_manifests/spartan.xml
+repo sync --current-branch --no-tags -j4
+bash device/realme/sm8250-common/patches/apply.sh
+./rom-build.sh spartan            # userdebug, GMS
+./rom-build.sh spartan -t user    # user build
+./rom-build.sh spartan -l         # vanilla, no GMS
+```
+
+`aospa_spartan.mk` sets `TARGET_HAS_UDFPS := true` for Penguin's UDFPS icon
+and animation packs. `TARGET_USES_BLUR` is left off.
+
 ## Notes
 
 - `system/vold` comes straight from CLO and does not add `KM_TAG_FBE_ICE` to the

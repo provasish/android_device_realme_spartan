@@ -18,6 +18,13 @@ $(call inherit-product, device/realme/spartan/device.mk)
 # Boot animation resolution.
 TARGET_BOOT_ANIMATION_RES := 1080
 
+# PenguinOS: UDFPS icon and animation packs (vendor/udfps-resources).
+# Ignored on plain AOSPA. Set before aospa-target.mk, which reads it.
+TARGET_HAS_UDFPS := true
+
+# PenguinOS: window blur. Off by default on kona; set to true to try it.
+TARGET_USES_BLUR ?= false
+
 # Inherit from the AOSPA configuration.
 $(call inherit-product, vendor/aospa/target/product/aospa-target.mk)
 

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+     realme GT Neo 3T (spartan, RMX3371) - PenguinOS celerity (AOSPA calcite, Android 17)
+     Copy to .repo/local_manifests/spartan.xml after a repo init of
+     https://github.com/Project-PenguinOS/manifest (branch celerity, with git-lfs).
+
+     The removes go by path, not name: PenguinOS replaces several AOSPA projects
+     with Project-PenguinOS forks, so a name-based remove of the AOSPA project
+     fails ("remove-project element specifies non-existent project").
+     optional="true" keeps the sync working if Penguin drops or renames one.
+-->
+<manifest>
+  <remote name="provasish-gitlab" fetch="https://gitlab.com/provasishh" />
+
+  <!-- Paths the PenguinOS base manifest already has, replaced for kona -->
+  <remove-project path="device/qcom/sepolicy_vndr" optional="true" />
+  <remove-project path="vendor/qcom/common" optional="true" />
+  <remove-project path="vendor/qcom/opensource/thermal-hal" optional="true" />
+
+  <!-- kona platform HALs (not in the PenguinOS base manifest) -->
+  <project path="vendor/qcom/opensource/audio-hal/primary-hal" name="pa-sanji/android_hardware_qcom_audio" remote="github" revision="calcite" />
+  <project path="hardware/qcom/display" name="pa-sanji/android_hardware_qcom_display" remote="github" revision="calcite" />
+  <project path="hardware/qcom/gps" name="AOSPA/android_hardware_qcom_gps" remote="aospa" revision="calcite-legacy-component" />
+  <project path="hardware/qcom/media" name="pa-sanji/android_hardware_qcom_media" remote="github" revision="calcite" />
+  <project path="vendor/qcom/opensource/thermal-hal" name="AOSPA/android_hardware_qcom_thermal" remote="aospa" revision="calcite-legacy" />
+
+  <!-- Penguin's sepolicy_vndr has no generic/qva kona policy; without it the ROM hangs at the splash -->
+  <project path="device/qcom/sepolicy_vndr" name="pa-sanji/android_device_qcom_sepolicy_vndr" remote="github" revision="calcite" />
+
+  <!-- Adreno GL/Vulkan libraries from the Lineage spartan tree (UM.9.14 GLES aborts SurfaceFlinger) -->
+  <project path="vendor/qcom/common" name="provasish/proprietary_vendor_qcom_common" remote="github" revision="spartan-lineage-adreno" />
+
+  <!-- spartan -->
+  <project path="device/realme/spartan" name="provasish/android_device_realme_spartan" remote="github" revision="clo" />
+  <project path="device/realme/sm8250-common" name="provasish/android_device_realme_sm8250-common" remote="github" revision="clo" />
+  <project path="hardware/oplus" name="provasish/android_hardware_oplus" remote="github" revision="clo" />
+  <project path="kernel/msm-4.19" name="provasish/android_kernel_realme_sm8250-a17" remote="github" revision="clo" />
+  <project path="vendor/realme/spartan" name="proprietary_vendor_realme_spartan" remote="provasish-gitlab" revision="clo" clone-depth="1" />
+  <project path="vendor/realme/sm8250-common" name="proprietary_vendor_realme_sm8250-common" remote="provasish-gitlab" revision="clo" clone-depth="1" />
+</manifest>
