@@ -58,6 +58,9 @@ the two components that do exist upstream.
   <project path="hardware/oplus" name="provasish/android_hardware_oplus" remote="github" revision="clo" />
   <project path="kernel/msm-4.19" name="provasish/android_kernel_realme_sm8250-a17" remote="github" revision="clo" />
   <project path="vendor/realme/spartan" name="proprietary_vendor_realme_spartan" remote="provasish-gitlab" revision="clo" clone-depth="1" />
+  <!-- Adreno GL/Vulkan libraries from the Lineage spartan tree (see Notes) -->
+  <remove-project name="proprietary_vendor_qcom_common" />
+  <project path="vendor/qcom/common" name="provasish/proprietary_vendor_qcom_common" remote="github" revision="spartan-lineage-adreno" />
   <project path="vendor/realme/sm8250-common" name="proprietary_vendor_realme_sm8250-common" remote="provasish-gitlab" revision="clo" clone-depth="1" />
 </manifest>
 ```
