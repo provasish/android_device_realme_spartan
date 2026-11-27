@@ -122,3 +122,13 @@ lunch aospa_spartan-userdebug
   `vendor/qcom/opensource/power`, `device/qcom/sepolicy`,
   `device/qcom/sepolicy_vndr`, `kernel/configs` and `system/libhwbinder` to
   `calcite` branches. Worth a look if boot still stalls after the HAL change.
+- GPU userspace: the Adreno GL, EGL, Vulkan and `libllvm-glnext` libraries
+  come from the Lineage spartan tree instead of Qualcomm's `UM.9.14` set. The
+  `UM.9.14` `libGLESv2_adreno.so` queries KGSL property `0x2A` (Vulkan device
+  ID), which the spartan kernel does not implement. SurfaceFlinger aborted on
+  EGL init and the boot stalled at the splash. The swapped set is on the
+  `spartan-lineage-adreno` branch of
+  [provasish/proprietary_vendor_qcom_common](https://github.com/provasish/proprietary_vendor_qcom_common/tree/spartan-lineage-adreno).
+  The `r` set's `Android.bp` also gets `liblog` in the `libllvm-glnext`
+  arm64 `shared_libs`, because the Lineage library needs it. These are
+  proprietary binaries, so check their license before publishing.
