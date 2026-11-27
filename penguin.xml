@@ -16,6 +16,7 @@
   <remove-project path="device/qcom/sepolicy_vndr" optional="true" />
   <remove-project path="vendor/qcom/common" optional="true" />
   <remove-project path="vendor/qcom/opensource/thermal-hal" optional="true" />
+  <remove-project path="packages/modules/Connectivity" optional="true" />
 
   <!-- kona platform HALs (not in the PenguinOS base manifest) -->
   <project path="vendor/qcom/opensource/audio-hal/primary-hal" name="pa-sanji/android_hardware_qcom_audio" remote="github" revision="calcite" />
@@ -26,6 +27,11 @@
 
   <!-- Penguin's sepolicy_vndr has no generic/qva kona policy; without it the ROM hangs at the splash -->
   <project path="device/qcom/sepolicy_vndr" name="pa-sanji/android_device_qcom_sepolicy_vndr" remote="github" revision="calcite" />
+
+  <!-- Penguin's Connectivity ignores ro.bpf.kver_override, so netbpfload refuses the 4.19
+       kernel and init reboots with "bpfloader-failed". pa-sanji's fork restores the override
+       and relaxes the netbpfload/netd kernel checks. -->
+  <project path="packages/modules/Connectivity" name="pa-sanji/packages_modules_Connectivity" remote="github" revision="calcite" />
 
   <!-- Adreno GL/Vulkan libraries from the Lineage spartan tree (UM.9.14 GLES aborts SurfaceFlinger) -->
   <project path="vendor/qcom/common" name="provasish/proprietary_vendor_qcom_common" remote="github" revision="spartan-lineage-adreno" />
