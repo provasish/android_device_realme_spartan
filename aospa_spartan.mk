@@ -25,6 +25,24 @@ TARGET_HAS_UDFPS := true
 # PenguinOS: window blur. Off by default on kona; set to true to try it.
 TARGET_USES_BLUR ?= false
 
+# PenguinOS: vendor/aospa still carries an April import of the ax SDK, the
+# HarmonySans font and the iconpack overlays, which vendor/udfps-resources
+# (android_vendor_addons) now provides in newer form under the same module
+# names, so Soong fails with "module ... already defined". Skip the stale
+# vendor/aospa copies while the addons ones exist.
+ifneq ($(wildcard vendor/udfps-resources/sdk/ax_compose/Android.bp),)
+PRODUCT_SOURCE_ROOT_DIRS += \
+    -vendor/aospa/misc/ax_blur \
+    -vendor/aospa/misc/ax_compose \
+    -vendor/aospa/misc/ax_kt \
+    -vendor/aospa/misc/ax_platform_hooks \
+    -vendor/aospa/misc/prebuilts \
+    -vendor/aospa/overlay/FontHarmonySansOverlay \
+    $(foreach p,Circular Filled Kai Rounded Sam Victor, \
+        $(foreach t,Android Launcher Settings SystemUI ThemePicker, \
+            -vendor/aospa/overlay/IconPack$(p)$(t)Overlay))
+endif
+
 # Inherit from the AOSPA configuration.
 $(call inherit-product, vendor/aospa/target/product/aospa-target.mk)
 
