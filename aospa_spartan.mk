@@ -43,6 +43,11 @@ PRODUCT_SOURCE_ROOT_DIRS += \
             -vendor/aospa/overlay/IconPack$(p)$(t)Overlay))
 endif
 
+# PenguinOS: vendor/udfps-resources/prebuilt/bootanimation (from crDroid)
+# selects on these, and Soong analyzes it even though it is not installed.
+$(call soong_config_set,lineage_bootanimation,width,1080)
+$(call soong_config_set,lineage_bootanimation,height,2400)
+
 # Inherit from the AOSPA configuration.
 $(call inherit-product, vendor/aospa/target/product/aospa-target.mk)
 
